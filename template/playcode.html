@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}playcode info{% endblock %}
+{% block content %}
+<div style="float: left;padding:10px;margin-right:30px;">
+		<div style='padding: 5px;'>默认JavaScript代码：<br/></div>
+		<textarea cols="50px" rows="5px" id="play_code" style="float: left;width:410px;">{{video_js}}</textarea>
+		<form action="/playcode/{{videoid}}">
+			<div style='padding: 5px;'>播放器宽度：<input id="width" name="width" type="text" size="5px"/>&nbsp px<br/></div>
+			<div style='padding: 5px;'>播放器高度：<input id="height" name="height" type="text" size="5px"/>&nbsp px<br/></div>
+			是否自动播放：
+			<input name="autoplay" type="radio" value="true"id="autoplay1" />True
+			<input name="autoplay" type="radio"value="false" id="autoplay1" />False
+			<br/> 
+			<input type="submit"value="设置"">
+		</form>
+	</div>
+	<div style="float: left;padding:15px;">
+		视频展示
+		{{video_js|safe}}
+	</div>
+{% endblock %}

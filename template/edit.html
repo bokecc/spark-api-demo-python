@@ -1,0 +1,116 @@
+{% extends "form.html" %}
+{% block title %} edit info {% endblock %}
+
+{% block content %}
+	<div id="edit_result" style="color:red;"></div>
+	<input type="hidden" id="videoid" value={{video.id}}> 视频标题：
+	<input id="title" value={{video.title}} />
+	<br /> 视频标签：
+	<input id="tag" value={{video.tags}} />
+	<br /> 视频描述：
+	<input id="desp" value={{video.desp}} />
+	<br /> 视频分类：
+		<select id="supercategory" onchange="show();">
+			{% for category in categories %}
+				<option value={{category.id}}>{{category.name}}</option>
+			{% endfor %}
+		</select>
+		
+		{% for category in categories %}
+			<select id="sub_{{category.id}}" style="display: none;" name="sub_category">
+				{% for subcategory in category.sub_category %}
+				<option value={{subcategory.id}}>{{subcategory.name}}</option>
+				{% endfor %}
+			</select>
+		{% endfor %}
+	<br> 选择视频截图：
+	<br>
+	{% for image in images %}
+		<img src={{image.url}} alt="暂无截图" style="width: 9%;" />
+		<input type="radio" name="video_img" value={{image.index}} {% if forloop.counter0 == video.imageindex %}checked{% endif %} />
+	{% endfor %}
+	<br/>
+	<input type="button" id="submit" onclick="submitVideo();" value="提交" />
+
+	<script type="text/javascript">
+		//控制视频分类显示
+		showSub();
+		function show() {
+			subCategorys = document.getElementsByName("sub_category");
+			for ( var i = 0; i < document.getElementsByName("sub_category").length; i++) {
+				subCategorys[i].style.display = 'none';
+			}
+			showSub();
+		}
+
+		function showSub() {
+			var superCategory = document.getElementById("supercategory").value;
+			var subCategory = document.getElementById("sub_" + superCategory);
+			if (subCategory != null) {
+				subCategory.style.display = 'inline';
+			}
+		}
+		//控制视频编辑
+		function submitVideo() {
+			var videoId = document.getElementById("videoid").value;
+			var title = encodeURIComponent(
+					document.getElementById("title").value, "utf-8");
+			var tag = encodeURIComponent(document.getElementById("tag").value,
+					"utf-8");
+			var description = encodeURIComponent(document
+					.getElementById("desp").value, "utf-8");
+			var superCategory = encodeURIComponent(document
+					.getElementById("supercategory").value, "utf-8");
+			var subCategory = document.getElementById("sub_" + superCategory);
+			var editUrl = "/editvideo?videoid=" + videoId + "&title="
+					+ title + "&tag=" + tag + "&description=" + description;
+			if (document.getElementById("supercategory") != null
+					&& subCategory == null){
+				document.getElementById("edit_result").innerHTML = "<div style='color:red;'>一级分类不能添加视频，请重新选择</div>";
+				return;
+			}
+			if (subCategory != null) {
+				editUrl = editUrl + "&categoryid=" + subCategory.value;
+			}
+			var images = document.getElementsByName("video_img");
+			for ( var i = 0; i < document.getElementsByName("video_img").length; i++) {
+				if (images[i].checked) {
+					editUrl = editUrl + "&imageindex=" + images[i].value;
+				}
+			}
+			var req = getAjax();
+			req.open("GET", editUrl, true);
+			req.onreadystatechange = function() {
+				if (req.readyState == 4) {
+					if (req.status == 200) {
+						var re = req.responseText;//获取返回的内容
+						document.getElementById("edit_result").innerHTML = re;
+					}
+				}
+			};
+			req.send(null);
+		}
+		function getAjax() {
+			var oHttpReq = null;
+
+			if (window.XMLHttpRequest) {
+				oHttpReq = new XMLHttpRequest;
+				if (oHttpReq.overrideMimeType) {
+					oHttpReq.overrideMimeType("text/xml");
+				}
+			} else if (window.ActiveXObject) {
+				try {
+					oHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
+				} catch (e) {
+					oHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+			} else if (window.createRequest) {
+				oHttpReq = window.createRequest();
+			} else {
+				oHttpReq = new XMLHttpRequest();
+			}
+
+			return oHttpReq;
+		}
+	</script>
+{% endblock %}

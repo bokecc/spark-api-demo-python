@@ -1,0 +1,28 @@
+<p>视频总数：{{videos.total}}个</p>
+<table>
+		<tr>
+			<th align="center">视频标题</th>
+			<th align="center">图片</th>
+			<th align="center">片长(s)</th>
+			<th align="center">文件大小(M)</th>
+			<th align="center">上传时间</th>
+			<th align="center">操作</th>
+		</tr>
+		{% for video in videos.video %}
+			<tr>
+				<td align="center">{{video.title}}</td>
+				<td align="center">
+					<img alt={{video.title}} src={{video.image}} />
+				</td>
+				<td align="center">{{video.duration}}</td>
+				<td align="center">{{video.filesize}}</td>
+				<td align="center">{{video.creation_date}}</td>
+				<td align="center">
+					<a href="/edit/{{video.id}}" target="_blank" style="color:#134394;">编辑</a>&nbsp;&nbsp;|&nbsp;
+					<a onclick="deletevideo(this.id);" href="#" id={{video.id}} style="color:#134394;">删除</a>&nbsp;&nbsp;|&nbsp;
+					<a href="/play/{{userid}}/{{video.id}}" target="_blank" style="color:#134394;">点击播放</a>&nbsp;&nbsp;|&nbsp;
+					<a href="/playcode/{{video.id}}" target="_blank" style="color:#134394;">查看代码</a>
+				</td>
+			</tr>
+		{% endfor %}
+</table>

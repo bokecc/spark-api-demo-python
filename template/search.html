@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}search demo{% endblock %}
+{% block head %}
+<style type="text/css">  
+        table {  
+            border: 1px solid #B1CDE3;  
+            padding: 0;   
+            margin-left: 30px;  
+            border-collapse: collapse;
+            float: left;  
+            width: 1280px;
+        }  
+          
+        td {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+            color: #4f6b72;  
+        }  
+        th {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+        }
+</style> 
+{% endblock %}
+{% block content %}
+<div style="color: red;" id="delete_result"></div>
+<form method="get" name="searchform" action="/searchvideo">
+	<div>
+		搜索条件：
+		<select name="search_query" id="search_query">
+			<option value="TITLE" selected="selected">按视频标题</option>
+		</select><input type="text" name="search_cont" id ="search_cont" size="10"/>
+	</div>
+	<div>排序方式：
+		<select name="sort_param" id="sort_param">
+			<option value="CREATION_DATE:ASC" selected="selected">按日期升序排列</option>
+			<option value="FILE_SIZE:ASC">按文件大小升序排列</option>
+			<option value="CREATION_DATE:DESC">按日期降序排列</option>
+			<option value="FILE_SIZE:DESC">按文件大小降序排列</option>
+		</select>
+	</div>
+	<div>视频分类：
+		<select id="supercategory" onchange="show();">
+			<option value="all">全部分类</option>
+			{% for category in categories %}
+				<option value={{category.id}}>{{category.name}}</option>
+			{% endfor %}
+		</select>
+		{% for category in categories %}
+			<select id="sub_{{category.id}}" style="display: none;" name="sub_category">
+				{% for subcategory in category.sub_category %}
+				<option value={{subcategory.id}}>{{subcategory.name}}</option>
+				{% endfor %}
+			</select>
+		{% endfor %}		
+	<br />
+	<input type="button" value="搜索" onclick="searchVideo();"/>
+	</div>
+</form>
+	<br />
+	<div id="search_result"></div>
+	<script type="text/javascript">
+		showSub();
+		function show() {
+			subCategorys = document.getElementsByName("sub_category");
+			for ( var i = 0; i < document.getElementsByName("sub_category").length; i++) {
+				subCategorys[i].style.display = 'none';
+			}
+			showSub();
+		}
+	
+		function showSub() {
+			var superCategory = document.getElementById("supercategory").value;
+			var subCategory = document.getElementById("sub_" + superCategory);
+			if (subCategory != null) {
+				subCategory.style.display = 'inline';
+			}
+		}
+		
+		function searchVideo(){
+			var searchQuery = encodeURIComponent(document.getElementById("search_query").value);
+			var searchCont = encodeURIComponent(document.getElementById("search_cont").value);
+			if(searchCont == null || searchCont == ""){
+				alert("查询条件不可为空");
+				return;
+			}
+			var sortParam = encodeURIComponent(document.getElementById("sort_param").value, "utf-8");
+			var superCategory = encodeURIComponent(document.getElementById("supercategory").value, "utf-8");
+			var subCategory = document.getElementById("sub_" + superCategory);
+			
+			var url = "/searchvideo?search_query=" + searchQuery + "&search_cont=" + searchCont + "&sort_param=" + sortParam;
+			if (document.getElementById("supercategory") != null
+					&& document.getElementById("supercategory").value != "all"
+					&& subCategory == null){
+				document.getElementById("search_result").innerHTML = "<div style='color:red;'>一级分类不能添加视频，请重新选择</div>";
+				return;
+			}
+			if (subCategory != null) {
+				url = url + "&categoryid=" + subCategory.value;
+			}
+			
+			var req = getAjax();
+			req.open("GET", url, true);
+			req.onreadystatechange = function() {
+				if (req.readyState == 4) {
+					if (req.status == 200) {
+						var re = req.responseText;//获取返回的内容
+						document.getElementById("search_result").innerHTML = re;
+					}
+				}
+			};
+			req.send(null);
+		}
+		
+		function deletevideo(videoId) {
+			var url = "/delete/" + videoId;
+			var req = getAjax();
+			req.open("GET", url, true);
+			req.onreadystatechange = function() {
+				if (req.readyState == 4) {
+					if (req.status == 200) {
+						re = req.responseText;//获取返回的内容
+						document.getElementById("delete_result").innerHTML = re;
+					}
+				}
+			};
+			req.send(null);
+		}
+		
+		function getAjax() {
+			var oHttpReq = null;
+
+			if (window.XMLHttpRequest) {
+				oHttpReq = new XMLHttpRequest;
+				if (oHttpReq.overrideMimeType) {
+					oHttpReq.overrideMimeType("text/xml");
+				}
+			} else if (window.ActiveXObject) {
+				try {
+					oHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
+				} catch (e) {
+					oHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+			} else if (window.createRequest) {
+				oHttpReq = window.createRequest();
+			} else {
+				oHttpReq = new XMLHttpRequest();
+			}
+
+			return oHttpReq;
+		}
+	</script>
+{% endblock %}

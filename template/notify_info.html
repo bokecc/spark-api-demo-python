@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %} notify info {% endblock %}
+{% block head %}
+<style type="text/css">  
+        table {  
+            border: 1px solid #B1CDE3;  
+            padding: 0;   
+            margin-left: 30px;  
+            border-collapse: collapse;
+            float: left;  
+            width: 1280px;
+        }  
+          
+        td {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+            color: #4f6b72;  
+        }  
+        th {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+        }
+</style> 
+{% endblock %}
+{% block content %}
+<table>
+<tr>
+	<th>videoid</th>
+	<th>status</th>
+	<th>duration</th>
+	<th>image</th>
+	</tr>
+{% for item in infos %}
+	<tr>
+	<td>{{item.videoid.0}}</td>
+	<td>{{item.status.0}}</td>
+	<td>{{item.duration.0}}</td>
+	<td>{{item.image.0}}</td>
+	</tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}apidemo python videolist{% endblock %}
+{% block head %}
+<style type="text/css">  
+        table {  
+            border: 1px solid #B1CDE3;  
+            padding: 0;   
+            margin-left: 30px;  
+            border-collapse: collapse;
+            float: left;  
+            width: 1280px;
+        }  
+          
+        td {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+            color: #4f6b72;  
+        }  
+        th {  
+            border: 1px solid #B1CDE3;  
+            background: #fff;  
+            font-size: 12px;  
+            padding: 3px 3px 3px 8px;  
+        }
+</style> 
+{% endblock %}
+{% block content %}
+		<div style='color:red;' id='delete_result'></div>
+		视频总数：{{total}}<br/><br/>
+		<a href='/videosync' style='color:#134394;float:left;'>同步视频</a>
+		<div class="pagination" style="float:left;margin-left:1150px;" >
+		    <span class="step-links">
+		        {% if posts.has_previous %}
+		            <a href="?page={{ posts.previous_page_number }}" style="color:#134394;">prev</a>
+		        {% else %}
+		            <span class='empty'></span>
+		        {% endif %}
+		        <span class="current">
+		            Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+		        </span>
+		        {% if posts.has_next %}
+		            <a href="?page={{ posts.next_page_number }}" style="color:#134394;">next</a>
+		        {% else %}
+		            <span class='empty'></span>                            
+		        {% endif %}
+		    </span>
+		    </div>
+		    
+		    <br/><br/>
+		<div>
+		<table>
+			<tr>
+				<th>视频标题</th>
+				<th>图片</th>
+				<th>操作</th>
+				<th>是否可以播放</th>
+				<th>点击播放</th>
+				<th>视频代码</th>
+			</tr>
+			{% for video in posts %}
+				<tr>
+					<td>{{video.title}}</td>
+					<td><img alt={{video.title}} src={{video.image}} /></td>
+					<td><a href="edit/{{video.id}}" target="_blank" style="color:#134394;">编辑</a>|<a onclick="deletevideo(this.id);" href="#" id={{video.id}} style="color:#134394;">删除</a></td>
+					<td>可播放</td>
+					<td><a href="play/{{userid}}/{{video.id}}" target="_blank" style="color:#134394;">点击播放</a></td>
+					<td><a href="playcode/{{video.id}}" target="_blank" style="color:#134394;">查看代码</a></td>
+				</tr>
+			{% endfor %}
+		</table>
+		<div>
+		<br/>
+		<div class="pagination" style="float:left;margin:20px 20px 20px 1210px;">
+		    <span class="step-links">
+		        {% if posts.has_previous %}
+		            <a href="?page={{ posts.previous_page_number }}" style="color:#134394;">prev</a>
+		        {% else %}
+		            <span class='empty'></span>
+		        {% endif %}
+		        <span class="current">
+		            Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+		        </span>
+		        {% if posts.has_next %}
+		            <a href="?page={{ posts.next_page_number }}" style="color:#134394;">next</a>
+		        {% else %}
+		            <span class='empty'></span>                            
+		        {% endif %}
+		    </span>
+		    </div>
+		<script type="text/javascript">
+		function deletevideo(videoId) {
+			var url = "/delete/" + videoId;
+			var req = getAjax();
+			req.open("GET", url, true);
+			req.onreadystatechange = function() {
+				if (req.readyState == 4) {
+					if (req.status == 200) {
+						var re = req.responseText;//获取返回的内容
+						document.getElementById("delete_result").innerHTML = re;
+					}
+				}
+			};
+			req.send(null);
+		}
+		
+		function getAjax() {
+			var oHttpReq = null;
+
+			if (window.XMLHttpRequest) {
+				oHttpReq = new XMLHttpRequest;
+				if (oHttpReq.overrideMimeType) {
+					oHttpReq.overrideMimeType("text/xml");
+				}
+			} else if (window.ActiveXObject) {
+				try {
+					oHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
+				} catch (e) {
+					oHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+				}
+			} else if (window.createRequest) {
+				oHttpReq = window.createRequest();
+			} else {
+				oHttpReq = new XMLHttpRequest();
+			}
+
+			return oHttpReq;
+		}
+	</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>{% block title %}{% endblock %}</title>
+	{% block head %}{% endblock %}
+</head>
+
+<body>
+{% block content_top %}
+<a href="/index/">返回首页</a>
+<hr>
+{% endblock %}
+{% block content %}{% endblock %}
+</body>
+</html>
